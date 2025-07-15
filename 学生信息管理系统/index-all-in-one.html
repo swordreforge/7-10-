@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 登录模态框样式 */
+        #loginModal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loginModal .modal-content {
+            width: 300px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        #loginModal h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        /* 主应用样式 */
+        .hidden {
+            display: none !important;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            height: 20px;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 200px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li a {
+            display: block;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar li a:hover {
+            background-color: #34495e;
+        }
+
+        .sidebar li a.active {
+            background-color: #3498db;
+        }
+
+        /* 内容区域样式 */
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        header {
+            position: relative;
+        }
+
+        header h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logout-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            padding: 5px 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        /* 搜索区域样式 */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-container button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-container button:hover {
+            background-color: #2980b9;
+        }
+
+        /* 表格样式 */
+        .student-table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 操作按钮样式 */
+        .action-btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        form button:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>系统登录</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">用户名:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">登录</button>
+                <p id="loginError" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主界面 (默认隐藏) -->
+    <div id="mainApp" class="hidden">
+        <div class="container">
+            <header>
+                <h1>学生信息管理系统</h1>
+                <button id="logoutBtn" class="logout-btn">退出登录</button>
+            </header>
+            
+            <nav class="sidebar">
+                <ul>
+                    <li><a href="#" class="active">首页</a></li>
+                    <li><a href="#">学生管理</a></li>
+                    <li><a href="#">成绩管理</a></li>
+                    <li><a href="#">班级管理</a></li>
+                    <li><a href="#">系统设置</a></li>
+                </ul>
+            </nav>
+            
+            <main class="content">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="输入学号或姓名搜索...">
+                    <button id="searchBtn">搜索</button>
+                    <button id="addStudentBtn">添加学生</button>
+                </div>
+                
+                <div class="student-table-container">
+                    <table id="studentTable">
+                        <thead>
+                            <tr>
+                                <th>学号</th>
+                                <th>姓名</th>
+                                <th>性别</th>
+                                <th>年龄</th>
+                                <th>班级</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <!-- 学生数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <button id="prevPage">上一页</button>
+                    <span id="pageInfo">第1页</span>
+                    <button id="nextPage">下一页</button>
+                </div>
+            </main>
+        </div>
+        
+        <!-- 添加学生模态框 -->
+        <div id="addStudentModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>添加新学生</h2>
+                <form id="addStudentForm">
+                    <div class="form-group">
+                        <label for="studentId">学号:</label>
+                        <input type="text" id="studentId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentName">姓名:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentGender">性别:</label>
+                        <select id="studentGender" required>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentAge">年龄:</label>
+                        <input type="number" id="studentAge" min="10" max="30" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentClass">班级:</label>
+                        <input type="text" id="studentClass" required>
+                    </div>
+                    <button type="submit">提交</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 登录状态
+        let isLoggedIn = false;
+        const USERNAME = 'root';
+        const PASSWORD = 'root';
+
+        // 模拟学生数据
+        let students = [
+            { id: '1001', name: '张三', gender: '男', age: 20, class: '计算机1班' },
+            { id: '1002', name: '李四', gender: '女', age: 19, class: '计算机2班' },
+            { id: '1003', name: '王五', gender: '男', age: 21, class: '计算机1班' },
+            { id: '1004', name: '赵六', gender: '女', age: 20, class: '计算机3班' },
+            { id: '1005', name: '钱七', gender: '男', age: 22, class: '计算机2班' },
+            { id: '1006', name: '孙八', gender: '女', age: 19, class: '计算机1班' },
+            { id: '1007', name: '周九', gender: '男', age: 20, class: '计算机3班' },
+            { id: '1008', name: '吴十', gender: '女', age: 21, class: '计算机2班' }
+        ];
+
+        // 分页相关变量
+        let currentPage = 1;
+        const rowsPerPage = 5;
+
+        // DOM元素
+        const loginModal = document.getElementById('loginModal');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const mainApp = document.getElementById('mainApp');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const studentTableBody = document.getElementById('studentTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const pageInfo = document.getElementById('pageInfo');
+        const modal = document.getElementById('addStudentModal');
+        const closeBtn = document.querySelector('.close');
+        const addStudentForm = document.getElementById('addStudentForm');
+
+        // 初始化页面
+        function init() {
+            checkLogin();
+            setupLoginListeners();
+            
+            if(isLoggedIn) {
+                initApp();
+            }
+        }
+
+        function initApp() {
+            renderTable();
+            setupEventListeners();
+        }
+
+        function checkLogin() {
+            // 检查登录状态
+            const savedLogin = localStorage.getItem('studentSystemLogin');
+            if(savedLogin === 'true') {
+                isLoggedIn = true;
+                showMainApp();
+            } else {
+                showLoginModal();
+            }
+        }
+
+        function showLoginModal() {
+            loginModal.style.display = 'block';
+            mainApp.classList.add('hidden');
+        }
+
+        function showMainApp() {
+            loginModal.style.display = 'none';
+            mainApp.classList.remove('hidden');
+        }
+
+        function setupLoginListeners() {
+            // 登录表单提交
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if(username === USERNAME && password === PASSWORD) {
+                    isLoggedIn = true;
+                    localStorage.setItem('studentSystemLogin', 'true');
+                    loginError.textContent = '';
+                    showMainApp();
+                    initApp();
+                } else {
+                    loginError.textContent = '用户名或密码错误';
+                }
+            });
+            
+            // 退出登录
+            logoutBtn.addEventListener('click', function() {
+                isLoggedIn = false;
+                localStorage.removeItem('studentSystemLogin');
+                showLoginModal();
+                loginForm.reset();
+            });
+        }
+
+        // 渲染学生表格
+        function renderTable(data = students) {
+            if(!isLoggedIn) {
+                showLoginModal();
+                return;
+            }
+            
+            studentTableBody.innerHTML = '';
+            
+            // 分页逻辑
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedData = data.slice(startIndex, endIndex);
+            
+            if(paginatedData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6" style="text-align:center;">暂无数据</td>';
+                studentTableBody.appendChild(row);
+                return;
+            }
+            
+            // 渲染表格行
+            paginatedData.forEach(student => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.gender}</td>
+                    <td>${student.age}</td>
+                    <td>${student.class}</td>
+                    <td>
+                        <button class="action-btn edit-btn" data-id="${student.id}">编辑</button>
+                        <button class="action-btn delete-btn" data-id="${student.id}">删除</button>
+                    </td>
+                `;
+                
+                studentTableBody.appendChild(row);
+            });
+            
+            // 更新分页信息
+            updatePagination(data.length);
+            
+            // 添加编辑和删除按钮事件
+            addEditDeleteEventListeners();
+        }
+
+        // 更新分页信息
+        function updatePagination(totalItems) {
+            if(!isLoggedIn) return;
+            
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            pageInfo.textContent = `第${currentPage}页/共${totalPages}页`;
+            
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // 搜索功能
+        function searchStudents() {
+            if(!isLoggedIn) {
+                showLoginModal();
+                return;
+            }
+            
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            
+            if (searchTerm === '') {
+                currentPage = 1;
+                renderTable(students);
+                return;
+            }
+            
+            const filteredStudents = students.filter(student => 
+                student.id.toLowerCase().includes(searchTerm) || 
+                student.name.toLowerCase().includes(searchTerm)
+            );
+            
+            currentPage = 1;
+            renderTable(filteredStudents);
+        }
+
+        // 添加事件监听器
+        function setupEventListeners() {
+            if(!isLoggedIn) return;
+            
+            // 搜索按钮点击事件
+            searchBtn.addEventListener('click', searchStudents);
+            
+            // 搜索输入框回车事件
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchStudents();
+                }
+            });
+            
+            // 分页按钮事件
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+            
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(students.length / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+            
+            // 添加学生按钮事件
+            addStudentBtn.addEventListener('click', () => {
+                if(!isLoggedIn) {
+                    showLoginModal();
+                    return;
+                }
+                
+                addStudentForm.reset();
+                delete addStudentForm.dataset.editing;
+                modal.style.display = 'block';
+            });
+            
+            // 关闭模态框事件
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // 添加编辑和删除按钮事件
+        function addEditDeleteEventListeners() {
+            if(!isLoggedIn) return;
+            
+            // 编辑按钮
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const studentId = e.target.getAttribute('data-id');
+                    const student = students.find(s => s.id === studentId);
+                    
+                    if (student) {
+                        // 填充表单
+                        document.getElementById('studentId').value = student.id;
+                        document.getElementById('studentName').value = student.name;
+                        document.getElementById('studentGender').value = student.gender;
+                        document.getElementById('studentAge').value = student.age;
+                        document.getElementById('studentClass').value = student.class;
+                        
+                        // 显示模态框
+                        modal.style.display = 'block';
+                        
+                        // 临时存储编辑状态
+                        addStudentForm.dataset.editing = studentId;
+                    }
+                });
+            });
+            
+            // 删除按钮
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const studentId = e.target.getAttribute('data-id');
+                    
+                    if (confirm(`确定要删除学号为 ${studentId} 的学生吗?`)) {
+                        students = students.filter(student => student.id !== studentId);
+                        renderTable();
+                    }
+                });
+            });
+        }
+
+        // 表单提交处理
+        addStudentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if(!isLoggedIn) {
+                showLoginModal();
+                return;
+            }
+            
+            const studentId = document.getElementById('studentId').value;
+            const studentName = document.getElementById('studentName').value;
+            const studentGender = document.getElementById('studentGender').value;
+            const studentAge = parseInt(document.getElementById('studentAge').value);
+            const studentClass = document.getElementById('studentClass').value;
+            
+            const studentData = {
+                id: studentId,
+                name: studentName,
+                gender: studentGender,
+                age: studentAge,
+                class: studentClass
+            };
+            
+            if (addStudentForm.dataset.editing) {
+                // 编辑现有学生
+                const index = students.findIndex(s => s.id === addStudentForm.dataset.editing);
+                if (index !== -1) {
+                    students[index] = studentData;
+                }
+                delete addStudentForm.dataset.editing;
+            } else {
+                // 添加新学生
+                // 检查学号是否已存在
+                if(students.some(s => s.id === studentId)) {
+                    alert('该学号已存在！');
+                    return;
+                }
+                students.push(studentData);
+            }
+            
+            renderTable();
+            modal.style.display = 'none';
+        });
+
+        // 初始化应用
+        init();
+    </script>
+</body>
+</html>

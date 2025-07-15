@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>学生信息管理系统</h1>
+        </header>
+        
+        <nav class="sidebar">
+            <ul>
+                <li><a href="#" class="active">首页</a></li>
+                <li><a href="#" onclick=alert("暂未开放！")>学生管理</a></li>
+                <li><a href="#" onclick=alert("暂未开放！")>成绩管理</a></li>
+                <li><a href="#" onclick=alert("暂未开放！")>班级管理</a></li>
+                <li><a href="#" onclick=alert("114514")>系统设置</a></li>
+            </ul>
+        </nav>
+        
+        <main class="content">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="输入学号或姓名搜索...">
+                <button id="searchBtn">搜索</button>
+                <button id="addStudentBtn">添加学生</button>
+            </div>
+            
+            <div class="student-table-container">
+                <table id="studentTable">
+                    <thead>
+                        <tr>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>年龄</th>
+                            <th>班级</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <!-- 学生数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <button id="prevPage">上一页</button>
+                <span id="pageInfo">第1页</span>
+                <button id="nextPage">下一页</button>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 添加学生模态框 -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>添加新学生</h2>
+            <form id="addStudentForm">
+                <div class="form-group">
+                    <label for="studentId">学号:</label>
+                    <input type="text" id="studentId" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentName">姓名:</label>
+                    <input type="text" id="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentGender">性别:</label>
+                    <select id="studentGender" required>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentAge">年龄:</label>
+                    <input type="number" id="studentAge" min="10" max="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentClass">班级:</label>
+                    <input type="text" id="studentClass" required>
+                </div>
+                <button type="submit">提交</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
